@@ -1,14 +1,14 @@
 import express from 'express';
 
 type ExpressErrorHandler = (
-  err: Error,
+  err: any,
   req: express.Request,
   res: express.Response,
   next: express.NextFunction
 ) => void;
 
-function createExpressHandler(fn: ExpressErrorHandler) {
+function createExpressErrorHandler(fn: ExpressErrorHandler) {
   return fn;
 }
 
-export default createExpressHandler;
+export default createExpressErrorHandler;

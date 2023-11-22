@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
-import bodyParser from 'body-parser';
-import createExpressHandler from './utils/expressHandller';
+// import bodyParser from 'body-parser';
+import createExpressErrorHandler from './utils/expressErrorHandler';
 import ApiError from './utils/apiError';
 import userRouter from './routes/auth.routes';
 
@@ -15,14 +15,13 @@ function startApp(app: any) {
       credentials: true,
     })
   );
-  app.use(bodyParser.json());
 
   // Parse the request body data into json format
   app.use(express.json());
 
   // Then check for JSON syntax error
   app.use(
-    createExpressHandler((err, req, res, next) => {
+    createExpressErrorHandler((err, req, res, next) => {
       if (err) {
         const { name, message } = err;
 
