@@ -1,6 +1,7 @@
 import { sequelize } from '../db/db';
 import { DataTypes } from 'sequelize';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import ApiError from '../utils/apiError';
 
 const User = sequelize.define('User', {
@@ -83,7 +84,7 @@ async function getUserByUsername(userName: string) {
     }
     return await user.toJSON();
   } catch (error) {
-    throw new ApiError(400, error, false, 'User with ${userName} not found');
+    throw error;
   }
 }
 async function getUserByEmail(email: string) {
@@ -94,8 +95,39 @@ async function getUserByEmail(email: string) {
     }
     return await user.toJSON();
   } catch (error) {
-    throw new ApiError(400, error, false, 'User with ${email} not found');
+    throw error;
   }
 }
 
-export { register, getUserByUsername, getUserByEmail };
+async function isPasswordCorrect(userName: string, password: string) {
+  try {
+    const user = await getUserByUsername(userName);
+    if (!user) {
+      return false;
+    }
+    const isPasswordCorrect = bcrypt.compareSync(password, user.password);
+    return isPasswordCorrect;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function generateAccessToken(userId: number, userName: string) {
+  try {
+    const secret = process.env.JWT_SECRET;
+    const expiersIn = process.env.JWT_EXPIRES_IN;
+    const token = await jwt.sign({ userId, userName }, String(secret), {
+      expiresIn: expiersIn,
+    });
+    return token;
+  } catch (error) {
+    throw error;
+  }
+}
+export {
+  register,
+  getUserByUsername,
+  getUserByEmail,
+  isPasswordCorrect,
+  generateAccessToken,
+};

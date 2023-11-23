@@ -1,10 +1,11 @@
 import express from 'express';
 import cors from 'cors';
-// import bodyParser from 'body-parser';
 import createExpressErrorHandler from './utils/expressErrorHandler';
 import ApiError from './utils/apiError';
 import userRouter from './routes/auth.routes';
-
+import session from 'express-session';
+import cookieParser from 'cookie-parser';
+import passport from 'passport';
 const app = express();
 
 // Middleware
@@ -18,6 +19,7 @@ function startApp(app: any) {
 
   // Parse the request body data into json format
   app.use(express.json());
+  app.use(cookieParser());
 
   // Then check for JSON syntax error
   app.use(
@@ -34,7 +36,15 @@ function startApp(app: any) {
       }
     })
   );
-
+  app.use(
+    session({
+      secret: String(process.env.SESSION_SECRET),
+      resave: true,
+      saveUninitialized: true,
+    })
+  );
+  app.use(passport.initialize());
+  app.use(passport.session());
   // api of todo
   app.use('/api/auth', userRouter());
 }
