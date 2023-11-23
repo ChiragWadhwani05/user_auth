@@ -126,7 +126,44 @@ const loginUser = createExpressHandler(async (req, res) => {
   }
 });
 
-const logoutUser = createExpressHandler(async (req, res) => {});
+const logoutUser = createExpressHandler(async (req, res) => {
+  try {
+    const { decodedUserName } = req.body;
+    const user = await getUserByUsername(decodedUserName);
+    if (!user) {
+      res
+        .status(404)
+        .json(
+          new ApiResponse(
+            404,
+            null,
+            `User with username ${decodedUserName} does not exist.`,
+            false
+          )
+        );
+      return;
+    }
+    const userDto = {
+      id: user.id,
+      givenName: user.givenName,
+      familyName: user.lastName,
+      email: user.email,
+      userName: user.userName,
+      avatar: user.avatar,
+      role: user.role,
+    };
+
+    res
+      .status(200)
+      .clearCookie('accessToken')
+      .json(
+        new ApiResponse(200, userDto, 'User logged out successfully', true)
+      );
+  } catch (error: any) {
+    const { message } = error;
+    throw new ApiError(500, error, false, message);
+  }
+});
 
 const registerUser = createExpressHandler(async (req, res) => {
   try {
@@ -139,34 +176,34 @@ const registerUser = createExpressHandler(async (req, res) => {
         password: string;
         role: string;
       };
-    // let userExists = await getUserByUsername(userName);
-    // if (userExists !== null) {
-    //   res
-    //     .status(409)
-    //     .json(
-    //       new ApiResponse(
-    //         409,
-    //         null,
-    //         `User with username ${userName} already exists.`,
-    //         false
-    //       )
-    //     );
-    //   return;
-    // }
-    // userExists = await getUserByEmail(email);
-    // if (userExists) {
-    //   res
-    //     .status(409)
-    //     .json(
-    //       new ApiResponse(
-    //         409,
-    //         null,
-    //         `User with email ${email} already exists.`,
-    //         false
-    //       )
-    //     );
-    //   return;
-    // }
+    let userExists = await getUserByUsername(userName);
+    if (userExists !== null) {
+      res
+        .status(409)
+        .json(
+          new ApiResponse(
+            409,
+            null,
+            `User with username ${userName} already exists.`,
+            false
+          )
+        );
+      return;
+    }
+    userExists = await getUserByEmail(email);
+    if (userExists) {
+      res
+        .status(409)
+        .json(
+          new ApiResponse(
+            409,
+            null,
+            `User with email ${email} already exists.`,
+            false
+          )
+        );
+      return;
+    }
 
     const user = await register(
       givenName,

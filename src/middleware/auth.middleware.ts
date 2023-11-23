@@ -16,7 +16,7 @@ const verifyAccessToken = createExpressHandler(async (req, res, next) => {
 
     jwt.verify(
       accessToken,
-      String(process.env.ACCESS_TOKEN_SECRET),
+      String(process.env.JWT_SECRET),
       (err: any, decoded: any) => {
         if (err) {
           const { message } = err;
