@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import createExpressErrorHandler from './utils/expressErrorHandler';
 import ApiError from './utils/apiError';
+import ApiResponse from './utils/apiResponse';
 import userRouter from './routes/auth.routes';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
@@ -47,6 +48,11 @@ function startApp(app: any) {
   app.use(passport.session());
   // api of todo
   app.use('/api/auth', userRouter());
+  app.get('/api/health', (req : any, res : any) => {
+    return res
+      .status(200)
+      .json(200, 'Server is healthy and running.');
+  });
 }
 
 export { startApp };
