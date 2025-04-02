@@ -14,8 +14,6 @@ This repository contains the backend implementation for user authentication with
 
 ## Prerequisites
 
-
-
 Before running the application, make sure you have the following installed:
 
 - Node.js
